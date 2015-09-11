@@ -250,6 +250,12 @@ trait ContentEntityStorageTrait {
       if (!isset($this->entities[$ws])) {
         $this->entities[$ws] = array();
       }
+      foreach ($entities as $id => $entity) {
+        // Do not cache deleted entities.
+        if ($entity->_deleted->value == TRUE) {
+          unset($entities[$id]);
+        }
+      }
       $this->entities[$ws] += $entities;
     }
   }
@@ -276,6 +282,10 @@ trait ContentEntityStorageTrait {
       'workspace_' . $ws,
     );
     foreach ($entities as $id => $entity) {
+      // Do not cache deleted entities.
+      if ($entity->_deleted->value == TRUE) {
+        continue;
+      }
       $this->cacheBackend->set($this->buildCacheId($id), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
     }
   }
